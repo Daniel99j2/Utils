@@ -1,5 +1,7 @@
 package com.daniel99j.djutil;
 
+import org.jetbrains.annotations.Contract;
+
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -35,15 +37,15 @@ public class Either<L, R> {
     }
 
     public boolean isLeft() {
-        return right != null;
+        return left != null;
     }
 
     public L getLeftOr(L other) {
         return left == null ? other : left;
     }
 
-    public L getRightOr(L other) {
-        return left == null ? other : left;
+    public R getRightOr(R other) {
+        return right == null ? other : right;
     }
 
     public void ifLeft(Consumer<? super L> consumer) {
@@ -54,6 +56,12 @@ public class Either<L, R> {
         if(right != null) {consumer.accept(right);}
     }
 
+    public void map(Consumer<? super L> left, Consumer<? super R> right) {
+        if(isRight()) right.accept(this.right);
+        else if(isLeft()) left.accept(this.left);
+        else throw new IllegalStateException("Either is not left or right");
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(left, right);
@@ -61,11 +69,16 @@ public class Either<L, R> {
 
     @Override
     public boolean equals(Object obj) {
+        if(obj == this) return true;
+        if(obj == null) return false;
+
         if(obj instanceof Either<?,?> either) {
-            if(this.left != null && either.left != null && this.left.equals(either.left)) return true;
-            //noinspection RedundantIfStatement
-            if(this.right != null && either.right != null && this.right.equals(either.right)) return true;
+            if(this.isLeft() && either.isLeft() && this.left.equals(either.left)) return true;
+            if(this.isRight() && either.isRight() && this.right.equals(either.right)) return true;
         }
+        if(this.isLeft() && left.equals(obj)) return true;
+        //noinspection RedundantIfStatement
+        if(this.isRight() && right.equals(obj)) return true;
         return false;
     }
 
