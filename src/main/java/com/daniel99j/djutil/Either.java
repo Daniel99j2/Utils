@@ -1,6 +1,7 @@
 package com.daniel99j.djutil;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class Either<L, R> {
     private final L left;
@@ -12,10 +13,12 @@ public class Either<L, R> {
     }
 
     public static <L, R> Either<L, R> left(L value) {
+        if(value == null) throw new NullPointerException("Either value cannot be null");
         return new Either<>(value, null);
     }
 
     public static <L, R> Either<L, R> right(R value) {
+        if(value == null) throw new NullPointerException("Either value cannot be null");
         return new Either<>(null, value);
     }
 
@@ -25,6 +28,30 @@ public class Either<L, R> {
 
     public R getRight() {
         return right;
+    }
+
+    public boolean isRight() {
+        return right != null;
+    }
+
+    public boolean isLeft() {
+        return right != null;
+    }
+
+    public L getLeftOr(L other) {
+        return left == null ? other : left;
+    }
+
+    public L getRightOr(L other) {
+        return left == null ? other : left;
+    }
+
+    public void ifLeft(Consumer<? super L> consumer) {
+        if(left != null) {consumer.accept(left);}
+    }
+
+    public void ifRight(Consumer<? super R> consumer) {
+        if(right != null) {consumer.accept(right);}
     }
 
     @Override
@@ -46,6 +73,12 @@ public class Either<L, R> {
     public String toString() {
         if(this.left != null) return "Either<Left>[left="+this.left+"]";
         if(this.right != null) return "Either<Right>[right="+this.right+"]";
-        return "Either<No Left or Right>";
+        throw new IllegalStateException("Either is not left or right");
+    }
+
+    public String getString() {
+        if(this.right != null) return this.right.toString();
+        if(this.left != null) return this.left.toString();
+        throw new IllegalStateException("Either is not left or right");
     }
 }
