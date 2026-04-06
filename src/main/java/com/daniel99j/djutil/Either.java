@@ -1,5 +1,7 @@
 package com.daniel99j.djutil;
 
+import java.util.Objects;
+
 public class Either<L, R> {
     private final L left;
     private final R right;
@@ -9,11 +11,11 @@ public class Either<L, R> {
         this.right = right;
     }
 
-    public static <L> Either<L, ?> left(L value) {
+    public static <L, R> Either<L, R> left(L value) {
         return new Either<>(value, null);
     }
 
-    public static <R> Either<?, R> right(R value) {
+    public static <L, R> Either<L, R> right(R value) {
         return new Either<>(null, value);
     }
 
@@ -27,16 +29,23 @@ public class Either<L, R> {
 
     @Override
     public int hashCode() {
-        return this.left == null ? this.right.hashCode() : this.left.hashCode();
+        return Objects.hash(left, right);
     }
 
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof Either<?,?> either) {
-            if(this.left != null && either.left != null && this.left == either.left) return true;
+            if(this.left != null && either.left != null && this.left.equals(either.left)) return true;
             //noinspection RedundantIfStatement
-            if(this.right != null && either.right != null && this.right == either.right) return true;
+            if(this.right != null && either.right != null && this.right.equals(either.right)) return true;
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        if(this.left != null) return "Either<Left>[left="+this.left+"]";
+        if(this.right != null) return "Either<Right>[right="+this.right+"]";
+        return "Either<No Left or Right>";
     }
 }
