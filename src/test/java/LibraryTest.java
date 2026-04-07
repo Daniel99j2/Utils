@@ -1,7 +1,16 @@
 import com.daniel99j.djutil.Either;
 import com.daniel99j.djutil.NumberUtils;
 import com.daniel99j.djutil.TestCode;
+import com.daniel99j.djutil.pathfinder.CachedPathfinder;
+import com.daniel99j.djutil.pathfinder.PathfindPos;
+import com.daniel99j.djutil.pathfinder.Pathfinder;
+import com.daniel99j.djutil.pathfinder.PathfinderOptions;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class LibraryTest {
     public static void main(String[] args) {
@@ -33,5 +42,23 @@ public class LibraryTest {
             assert NumberUtils.getRandomInt(0, 10) > -1;
             assert NumberUtils.getRandomInt(0, 10) < 11;
         }
+
+
+        //the pathfinder finds a path correctly
+        PathfindPos start = new PathfindPos(0, 0);
+        PathfindPos end = new PathfindPos(50, 60);
+        List<PathfindPos> visited = new ArrayList<>();
+
+        PathfinderOptions options = PathfinderOptions.builder()
+                .diagonalNeighbourProvider()
+                .maxIterations(1000)
+                .onVisitConsumer(visited::add)
+                .build();
+
+        List<PathfindPos> path = Pathfinder.findPath(start, end, options);
+        assert !path.isEmpty();
+        assert path.getFirst().equals(start);
+        assert path.getLast().equals(end);
+        assert visited.contains(start);
     }
 }
