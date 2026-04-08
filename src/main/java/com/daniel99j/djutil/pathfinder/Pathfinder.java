@@ -26,6 +26,7 @@ public class Pathfinder {
         Set<PathfindPos> closedSet = new HashSet<>();
         Map<PathfindPos, PathfindPos> cameFrom = new HashMap<>();
         Map<PathfindPos, Double> gScore = new HashMap<>();
+        ArrayList<PathfindPos> invalidPositions = new ArrayList<>();
 
         gScore.put(start, 0.0);
         openSet.add(new Node(start, options.getHeuristicFunction().applyAsDouble(start, end)));
@@ -44,16 +45,17 @@ public class Pathfinder {
 
                 if(options.getDebugRenderConsumer() != null) {
                     options.getDebugRenderConsumer().accept(new PathfindDebugPos(null, null, 0, PathfindDebugType.BEGIN_MARKER_NOTREAL));
-                    options.getDebugRenderConsumer().accept(new PathfindDebugPos(null, start, 0, PathfindDebugType.START));
-                    options.getDebugRenderConsumer().accept(new PathfindDebugPos(null, end, 0, PathfindDebugType.END));
                     cameFrom.forEach((pos, pos2) -> options.getDebugRenderConsumer().accept(new PathfindDebugPos(pos2, pos, 0, PathfindDebugType.CONNECTION)));
                     openSet.forEach(node -> options.getDebugRenderConsumer().accept(new PathfindDebugPos(null, node.pos(), 0, PathfindDebugType.OPEN_SET)));
+                    invalidPositions.forEach(node -> options.getDebugRenderConsumer().accept(new PathfindDebugPos(null, node, 0, PathfindDebugType.INVALID)));
                     closedSet.forEach(node -> options.getDebugRenderConsumer().accept(new PathfindDebugPos(null, node, 0, PathfindDebugType.CLOSED_SET)));
                     int index = 0;
                     for (PathfindPos pos : path) {
                         if(index > 0) options.getDebugRenderConsumer().accept(new PathfindDebugPos(path.get(index-1), pos, gScore.get(pos).intValue(), PathfindDebugType.SUCCESSFUL_PATH));
                         index++;
                     }
+                    options.getDebugRenderConsumer().accept(new PathfindDebugPos(null, start, 0, PathfindDebugType.START));
+                    options.getDebugRenderConsumer().accept(new PathfindDebugPos(null, end, 0, PathfindDebugType.END));
                     options.getDebugRenderConsumer().accept(new PathfindDebugPos(null, null, 0, PathfindDebugType.END_MARKER_NOTREAL));
                 }
 
@@ -71,7 +73,10 @@ public class Pathfinder {
             for (PathfindPos neighbour : neighbours) {
                 if (neighbour == null) continue;
                 if (closedSet.contains(neighbour)) continue;
-                if (!neighbour.equals(end) && !options.getWalkablePredicate().test(neighbour)) continue;
+                if (!neighbour.equals(end) && !options.getWalkablePredicate().test(neighbour)) {
+                    if(options.getDebugRenderConsumer() != null) invalidPositions.add(neighbour);
+                    continue;
+                }
 
                 double tentativeGScore = currentGScore
                         + options.getMovementCostFunction().applyAsDouble(current, neighbour)
