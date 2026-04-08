@@ -41,9 +41,9 @@ public class Pathfinder {
             if (current.equals(end)) {
 
                 if(options.getDebugRenderConsumer() != null) {
-                    cameFrom.forEach((pos, pos2) -> options.getDebugRenderConsumer().accept(new PathfindDebugPos(pos2, pos, gScore.get(pos).intValue(), 0x00FF00)));
-                    openSet.forEach(node -> options.getDebugRenderConsumer().accept(new PathfindDebugPos(null, node.pos(), 0, 0xFF0000)));
-                    closedSet.forEach(node -> options.getDebugRenderConsumer().accept(new PathfindDebugPos(null, node, 0, 0x0000FF)));
+                    cameFrom.forEach((pos, pos2) -> options.getDebugRenderConsumer().accept(new PathfindDebugPos(pos2, pos, gScore.get(pos).intValue(), PathfindDebugType.SUCCESSFUL_PATH)));
+                    openSet.forEach(node -> options.getDebugRenderConsumer().accept(new PathfindDebugPos(null, node.pos(), 0, PathfindDebugType.OPEN_SET)));
+                    closedSet.forEach(node -> options.getDebugRenderConsumer().accept(new PathfindDebugPos(null, node, 0, PathfindDebugType.CLOSED_SET)));
                 }
 
                 return reconstructPath(cameFrom, current);

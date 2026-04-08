@@ -43,7 +43,7 @@ publishing {
 }
 
 tasks.register('bumpVersion') {
-    doLast {
+    doFirst {
         def scanner = new Scanner(System.in)
         logger.lifecycle("====================================================")
         logger.lifecycle("> Current version: '${project.version}'")
@@ -62,4 +62,4 @@ tasks.register('bumpVersion') {
     }
 }
 
-build.finalizedBy(bumpVersion)
+build.dependsOn(bumpVersion)
