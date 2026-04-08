@@ -22,7 +22,7 @@ public class CachedPathfinder {
     public List<PathfindPos> findPath(PathfindPos start, PathfindPos end, PathfindPos extraStart) {
         this.wasLastInvalid = false;
 
-        if((end.equals(this.oldEnd) && start.equals(this.oldStart)) || (this.maxDistance != 0 && this.oldStart.distanceTo(start) <= this.maxDistance && this.oldEnd.distanceTo(end) <= this.maxDistance)) {
+        if((end.equals(this.oldEnd) && start.equals(this.oldStart)) || (this.maxDistance != 0 && this.oldStart != null && this.oldEnd != null && this.oldStart.distanceTo(start) <= this.maxDistance && this.oldEnd.distanceTo(end) <= this.maxDistance)) {
             for (PathfindPos pathfindPos : this.cache) {
                 if(!this.options.getWalkablePredicate().test(pathfindPos)) {
                     this.wasLastInvalid = true;

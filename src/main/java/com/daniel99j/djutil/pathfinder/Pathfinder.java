@@ -40,13 +40,24 @@ public class Pathfinder {
             options.getOnVisitConsumer().accept(current);
             if (current.equals(end)) {
 
+                List<PathfindPos> path = reconstructPath(cameFrom, current);
+
                 if(options.getDebugRenderConsumer() != null) {
-                    cameFrom.forEach((pos, pos2) -> options.getDebugRenderConsumer().accept(new PathfindDebugPos(pos2, pos, gScore.get(pos).intValue(), PathfindDebugType.SUCCESSFUL_PATH)));
+                    options.getDebugRenderConsumer().accept(new PathfindDebugPos(null, null, 0, PathfindDebugType.BEGIN_MARKER_NOTREAL));
+                    options.getDebugRenderConsumer().accept(new PathfindDebugPos(null, start, 0, PathfindDebugType.START));
+                    options.getDebugRenderConsumer().accept(new PathfindDebugPos(null, end, 0, PathfindDebugType.END));
+                    cameFrom.forEach((pos, pos2) -> options.getDebugRenderConsumer().accept(new PathfindDebugPos(pos2, pos, 0, PathfindDebugType.CONNECTION)));
                     openSet.forEach(node -> options.getDebugRenderConsumer().accept(new PathfindDebugPos(null, node.pos(), 0, PathfindDebugType.OPEN_SET)));
                     closedSet.forEach(node -> options.getDebugRenderConsumer().accept(new PathfindDebugPos(null, node, 0, PathfindDebugType.CLOSED_SET)));
+                    int index = 0;
+                    for (PathfindPos pos : path) {
+                        if(index > 0) options.getDebugRenderConsumer().accept(new PathfindDebugPos(path.get(index-1), pos, gScore.get(pos).intValue(), PathfindDebugType.SUCCESSFUL_PATH));
+                        index++;
+                    }
+                    options.getDebugRenderConsumer().accept(new PathfindDebugPos(null, null, 0, PathfindDebugType.END_MARKER_NOTREAL));
                 }
 
-                return reconstructPath(cameFrom, current);
+                return path;
             }
 
             closedSet.add(current);

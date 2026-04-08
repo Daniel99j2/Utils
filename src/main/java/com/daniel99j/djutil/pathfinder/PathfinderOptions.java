@@ -61,6 +61,19 @@ public class PathfinderOptions {
         return debugRenderConsumer;
     }
 
+    public Builder newBuilder() {
+        Builder out = new Builder();
+        out.maxIterations = this.maxIterations;
+        out.debugRenderConsumer = this.debugRenderConsumer;
+        out.heuristicFunction = this.heuristicFunction;
+        out.movementCostFunction = this.movementCostFunction;
+        out.neighbourProvider = this.neighbourProvider;
+        out.onVisitConsumer = this.onVisitConsumer;
+        out.positionCostFunction = this.positionCostFunction;
+        out.walkablePredicate = this.walkablePredicate;
+        return out;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
