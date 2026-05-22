@@ -60,5 +60,14 @@ public class LibraryTest {
         assert path.getFirst().equals(start);
         assert path.getLast().equals(end);
         assert visited.contains(start);
+
+
+
+
+        Integer i = TestEnumRecord.C.create(2).value();
+        assert i == 2;
+
+        assert TestEnumRecord.C.create(2).equals(TestEnumRecord.C.create(2));
+        assert !TestEnumRecord.B.equals(TestEnumRecord.C);
     }
 }
