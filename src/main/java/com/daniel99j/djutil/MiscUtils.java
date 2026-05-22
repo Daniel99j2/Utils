@@ -2,6 +2,10 @@ package com.daniel99j.djutil;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
 public class MiscUtils {
     public static String getTextBetween(String text, String start, String end) {
         int startIndex = text.indexOf(start);
@@ -28,5 +32,22 @@ public class MiscUtils {
 
     public static <T> T fallback(@Nullable T check, T fallback) {
         return check != null ? check : fallback;
+    }
+
+    public static boolean containsArg(String name, String[] args) {
+        for (String arg : args) {
+            if(arg.equals(name)) return true;
+        }
+        return false;
+    }
+
+    @Nullable
+    public static String getArgValue(String name, String[] args) {
+        int i = 0;
+        for (String arg : args) {
+            if(arg.equals(name)) return args[i+1];
+            i++;
+        }
+        return null;
     }
 }
