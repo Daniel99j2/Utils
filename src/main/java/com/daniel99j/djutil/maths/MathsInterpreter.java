@@ -81,7 +81,7 @@ public class MathsInterpreter {
     }
 
     private static double simpleNumbers() {
-        double value = multiplyDividePower();
+        double value = multiplyDivide();
 
         while (current < in.length()) {
             char c = in.charAt(current);
@@ -92,7 +92,7 @@ public class MathsInterpreter {
 
             current++;
 
-            double right = multiplyDividePower();
+            double right = multiplyDivide();
 
             if (c == '+') {
                 value += right;
@@ -104,28 +104,42 @@ public class MathsInterpreter {
         return value;
     }
 
-    private static double multiplyDividePower() {
-        double value = brackets();
+    private static double multiplyDivide() {
+        double value = power();
 
         while (current < in.length()) {
             char c = in.charAt(current);
-            if (c != '*' && c != '/' && c != '^') {
+
+            if (c != '*' && c != '/') {
                 break;
             }
             current++;
-            double right = brackets();
+
+            double right = power();
+
             if (c == '*') {
                 value *= right;
-            } else if (c == '/') {
-                value /= right;
             } else {
-                value = Math.pow(value, right);
+                value /= right;
             }
         }
         return value;
     }
 
+    private static double power() {
+        double value = brackets();
+        if (current < in.length() && in.charAt(current) == '^') {
+            current++;
+            double exponent = power();
+            value = Math.pow(value, exponent);
+        }
+        return value;
+    }
     private static double brackets() {
+        if (in.charAt(current) == '-') {
+            current++;
+            return -brackets();
+        }
         if (Character.isLetter(in.charAt(current))) {
             int start = current;
             while (current < in.length() && (Character.isLetterOrDigit(in.charAt(current)) || in.charAt(current) == '_')) {
