@@ -15,19 +15,13 @@ public class MathsInterpreter {
     //synchronized makes it not break because current is being changed in many places
     public synchronized static double eval(String s, MathsContext c) {
         int cacheKey = 0;
-        if(c.cache) {
-            //assumes variables and functions have not changed
-            if(c.fastCache) cacheKey = Objects.hash(s, c.variables.keySet(), c.functions.keySet());
-            else {
-                Map<String, Double> functionOuts = new HashMap<>();
-                c.functions.forEach((k, v) -> {
-                    functionOuts.put(k, v.apply(12345d));
-                });
-                cacheKey = Objects.hash(s, c.variables, functionOuts);
-            }
+        if(c.fastCache) {
+            //assumes all variables are used
+            cacheKey = Objects.hash(s, c.variables, c.functions.keySet());
+
             if(cache.containsKey(cacheKey)) return cache.get(cacheKey);
         }
-        
+
         try {
             context = c;
             current = 0;
@@ -57,7 +51,28 @@ public class MathsInterpreter {
 //            }
 
             //5(6) -> 5*(6)
-            in = newIn.toString().replaceAll("(?<=[\\d,)])\\(", "*(");
+            String bracketReplacer = newIn.toString();
+            StringBuilder n = new StringBuilder(bracketReplacer.length());
+
+            for (int i = 0; i < bracketReplacer.length(); i++) {
+                char bracket = bracketReplacer.charAt(i);
+                if (bracket == '(' && i > 0) {
+                    char prev = bracketReplacer.charAt(i - 1);
+                    if (Character.isDigit(prev) || prev == ')') {
+                        n.append('*');
+                    }
+                }
+                n.append(bracket);
+            }
+
+            in = n.toString();
+
+            if(c.cache && !c.fastCache) {
+                //assumes variables and functions have not changed
+                cacheKey = in.hashCode();
+
+                if(cache.containsKey(cacheKey)) return cache.get(cacheKey);
+            }
 
             double out = simpleNumbers();
             if(Double.isInfinite(out) || Double.isNaN(out)) throw new MathsParsingError("Result is not a number");

@@ -41,9 +41,9 @@ public class LibraryTest {
 
 
         for (int i = 0; i < 10000000; i++) {
-            //no cache: 1m 51s
-            //cache: 8s
-            //fast cache: 2s
+            //no cache: 1m 9s (35x)
+            //cache: 26s (13x)
+            //fast cache: 2s (1x)
             MathsInterpreter.eval("tttttttttttttttttttttttt", MathsContext.create().withFastCache().withGlobalVariable("t", "(1)(2)(3)(4)(5)(6)"));
         }
     }
