@@ -1,6 +1,7 @@
 import com.daniel99j.djutil.Either;
 import com.daniel99j.djutil.NumberUtils;
 import com.daniel99j.djutil.TestCode;
+import com.daniel99j.djutil.maths.MathsInterpreter;
 import com.daniel99j.djutil.pathfinder.CachedPathfinder;
 import com.daniel99j.djutil.pathfinder.PathfindPos;
 import com.daniel99j.djutil.pathfinder.Pathfinder;
@@ -69,5 +70,8 @@ public class LibraryTest {
 
         assert TestEnumRecord.C.create(2).equals(TestEnumRecord.C.create(2));
         assert !TestEnumRecord.B.equals(TestEnumRecord.C);
+
+        double v = MathsInterpreter.eval("1+500+2+4");
+        assert v == 507;
     }
 }
