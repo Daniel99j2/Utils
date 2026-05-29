@@ -50,4 +50,15 @@ public class MiscUtils {
         }
         return null;
     }
+
+    public static boolean classEquals(Class<?> objectOrPrimitive, Class<?> object) {
+        if(objectOrPrimitive.equals(double.class) && object.equals(Double.class)) return true;
+        if(objectOrPrimitive.equals(float.class) && object.equals(Float.class)) return true;
+        if(objectOrPrimitive.equals(int.class) && object.equals(Integer.class)) return true;
+        if(objectOrPrimitive.equals(long.class) && object.equals(Long.class)) return true;
+        if(objectOrPrimitive.equals(short.class) && object.equals(Short.class)) return true;
+        if(objectOrPrimitive.equals(byte.class) && object.equals(Byte.class)) return true;
+        if(objectOrPrimitive.equals(char.class) && object.equals(Character.class)) return true;
+        return objectOrPrimitive.equals(object);
+    }
 }

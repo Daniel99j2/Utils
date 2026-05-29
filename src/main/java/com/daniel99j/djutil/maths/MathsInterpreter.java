@@ -1,122 +1,168 @@
 package com.daniel99j.djutil.maths;
 
-import com.daniel99j.djutil.ValueHolder;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.BiFunction;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 public class MathsInterpreter {
-    private static final Map<Character, BiFunction<Double, Double, Double>> operations = Map.of('+', (a, b) -> a+b, '-', (a, b) -> a-b, '*', (a, b) -> a*b, '/', (a, b) -> a/b);
-    public static double eval(String s) {
-        s = s.replace(" ", "");
-        //create nodes
-        //resolve nodes
+    private static String in;
+    private static int current;
+    private static MathsContext context;
 
+    private static final Map<Integer, Double> cache = new HashMap<>();
 
-        //if it reaches a +-*/ or end read past numbers
+    //synchronized makes it not break because current is being changed in many places
+    public synchronized static double eval(String s, MathsContext c) {
+        int cacheKey = 0;
+        if(c.cache) {
+            //assumes variables and functions have not changed
+            if(c.fastCache) cacheKey = Objects.hash(s, c.variables.keySet(), c.functions.keySet());
+            else {
+                Map<String, Double> functionOuts = new HashMap<>();
+                c.functions.forEach((k, v) -> {
+                    functionOuts.put(k, v.apply(12345d));
+                });
+                cacheKey = Objects.hash(s, c.variables, functionOuts);
+            }
+            if(cache.containsKey(cacheKey)) return cache.get(cacheKey);
+        }
+        
+        try {
+            context = c;
+            current = 0;
 
-        Equation nodes = new Equation();
-        Equation currentlyEditing = nodes;
-        //ValueHolder<Resolvable> currentlyChanging = nodes.one;
+            AtomicInteger loops = new AtomicInteger();
+            StringBuilder newIn = new StringBuilder(s.replace(" ", ""));
+            while (true) {
+                AtomicBoolean anyChanged = new AtomicBoolean(false);
+                context.variables.forEach((k, v) -> {
+                    while (newIn.toString().contains(k)) {
+                        anyChanged.set(true);
+                        int i = newIn.indexOf(k);
+                        newIn.replace(i, i+k.length(), "("+v+")");
 
-        String currentNumber = "";
-        int current = 0;
-        while (!s.isEmpty()) {
-            if(s.length() == current) {
-                currentlyEditing.one.object = new Value(Double.parseDouble(currentNumber));
+                        loops.getAndIncrement();
+                        if(loops.get() > 1000) throw new MathsParsingError("Variables nested too deeply");
+                    }
+                });
+                in = newIn.toString();
+                if(!anyChanged.get()) break;
+                loops.getAndIncrement();
+                if(loops.get() > 1000) throw new MathsParsingError("Variables nested too deeply");
+            }
+//
+//            while (newIn.toString().split("(?<=\\d)\\(").length > 0) {
+//                newIn.toString(.newIn.indexOf("("), newIn.indexOf("(")+1, "(");
+//            }
+
+            //5(6) -> 5*(6)
+            in = newIn.toString().replaceAll("(?<=[\\d,)])\\(", "*(");
+
+            double out = simpleNumbers();
+            if(Double.isInfinite(out) || Double.isNaN(out)) throw new MathsParsingError("Result is not a number");
+
+            if(c.cache) {
+                if(cache.size() > 100) cache.clear();
+                cache.put(cacheKey, out);
+            }
+            return out;
+        } catch (Exception e) {
+            if(e instanceof MathsParsingError) {
+                throw e;
+            } else {
+                throw new MathsParsingError(e.getMessage());
+            }
+        }
+    }
+
+    public synchronized static double eval(String s) {
+        return eval(s, MathsContext.create());
+    }
+
+    private static double simpleNumbers() {
+        double value = multiplyDividePower();
+
+        while (current < in.length()) {
+            char c = in.charAt(current);
+
+            if (c != '+' && c != '-') {
                 break;
             }
-            if(operations.containsKey(s.charAt(current))) {
-                currentlyEditing.one.object = new Value(Double.parseDouble(currentNumber));
-                currentlyEditing.function = operations.get(s.charAt(current));
-                currentNumber = "";
-                Equation newE = new Equation();
-                currentlyEditing.two.object = newE;
-                currentlyEditing = newE;
+
+            current++;
+
+            double right = multiplyDividePower();
+
+            if (c == '+') {
+                value += right;
             } else {
-                currentNumber += s.charAt(current);
+                value -= right;
+            }
+        }
+
+        return value;
+    }
+
+    private static double multiplyDividePower() {
+        double value = brackets();
+
+        while (current < in.length()) {
+            char c = in.charAt(current);
+            if (c != '*' && c != '/' && c != '^') {
+                break;
             }
             current++;
+            double right = brackets();
+            if (c == '*') {
+                value *= right;
+            } else if (c == '/') {
+                value /= right;
+            } else {
+                value = Math.pow(value, right);
+            }
         }
-
-//        Equation e = new Equation();
-//        top:
-//        while(true) {
-//            //read until operation
-//            String remaining = s;
-//            StringBuilder current = new StringBuilder();
-//            while(!remaining.isEmpty()) {
-//                if (!remaining.startsWith("+")) {
-//                    current.append(s.charAt(0));
-//                    remaining = remaining.substring(1);
-//                } else {
-//                    if(e.one == null) {
-//                        Value v = new Value();
-//                        v.value = Double.parseDouble(current.toString());
-//                        e.one = v;
-//                        break;
-//                    } else if(e.two == null) {
-//                        Value v = new Value();
-//                        v.value = Double.parseDouble(current.toString());
-//                        e.two = v;
-//                        break top;
-//                    }
-//                }
-//            }
-//        }
-//        return e.resolve();
-        nodes.resolve();
-        return nodes.getValue();
+        return value;
     }
 
-    private static class Value extends Resolvable {
-        protected final double value;
+    private static double brackets() {
+        if (Character.isLetter(in.charAt(current))) {
+            int start = current;
+            while (current < in.length() && (Character.isLetterOrDigit(in.charAt(current)) || in.charAt(current) == '_')) {
+                current++;
+            }
+            String name = in.substring(start, current);
+            if (current >= in.length() || in.charAt(current) != '(') {
+                throw new MathsParsingError("Missing ( whilst parsing function: " + name);
+            }
+            current++; //skip the start bracket
+            double arg = simpleNumbers();
+            if (current >= in.length() || in.charAt(current) != ')') {
+                throw new MathsParsingError("Missing ) whilst parsing function: " + name);
+            }
+            current++; //skip the end bracket
 
-        public Value(double v) {
-            this.value = v;
+            Function<Double, Double> function = context.functions.get(name);
+            if (function == null) {
+                throw new MathsParsingError("Unknown function: " + name);
+            }
+            return function.apply(arg);
         }
 
-        @Override
-        public void resolve() {
-            this.resolved = value;
-        }
-
-        @Override
-        public double getValue() {
+        if (in.charAt(current) == '(') {
+            current++;
+            double value = simpleNumbers();
+            if (in.charAt(current) != ')') {
+                throw new MathsParsingError("Missing )");
+            }
+            current++;
             return value;
         }
-    }
-
-    private static class Resolvable {
-        protected double resolved = Double.NaN;
-
-        public void resolve() {
+        //collect the numbers
+        int start = current;
+        while (current < in.length() && (Character.isDigit(in.charAt(current)) || in.charAt(current) == '.')) {
+            current++;
         }
-
-        protected double getValue() {
-            if(Double.isNaN(resolved)) throw new IllegalArgumentException("Unresolved");
-            return resolved;
-        }
-    }
-
-    private static class Equation extends Resolvable {
-        protected ValueHolder<Resolvable> one = new ValueHolder<>();
-        protected ValueHolder<Resolvable> two = new ValueHolder<>();
-        protected BiFunction<Double, Double, Double> function;
-
-        @Override
-        public void resolve() {
-            assert one.object != null;
-
-            one.object.resolve();
-            if(two.object != null) two.object.resolve();
-            else {
-                this.resolved = one.object.getValue();
-                return;
-            }
-            this.resolved = function.apply(one.object.getValue(), two.object.getValue());
-        }
+        return Double.parseDouble(in.substring(start, current));
     }
 }

@@ -1,17 +1,15 @@
 import com.daniel99j.djutil.Either;
 import com.daniel99j.djutil.NumberUtils;
 import com.daniel99j.djutil.TestCode;
+import com.daniel99j.djutil.maths.MathsContext;
 import com.daniel99j.djutil.maths.MathsInterpreter;
-import com.daniel99j.djutil.pathfinder.CachedPathfinder;
 import com.daniel99j.djutil.pathfinder.PathfindPos;
 import com.daniel99j.djutil.pathfinder.Pathfinder;
 import com.daniel99j.djutil.pathfinder.PathfinderOptions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class LibraryTest {
     public static void main(String[] args) {
@@ -25,9 +23,29 @@ public class LibraryTest {
 
     @Test
     public void testMaths() {
-        double v = MathsInterpreter.eval("10*500+2+4");
+        double v = MathsInterpreter.eval("10x+8+${test}", MathsContext.create().withGlobalVariable("x", "5").withVariable("test", "5"));
         System.out.println(v);
-        assert v == 5006;
+        assert v == 63;
+
+        double v3 = MathsInterpreter.eval("50+(5*(8+(3-2)))");
+        System.out.println(v3);
+        assert v3 == 50+(5*(8+(3-2)));
+
+        double v2 = MathsInterpreter.eval("sin(12345.6)");
+        System.out.println(v2);
+        assert v2 == Math.sin(12345.6);
+
+        double v4 = MathsInterpreter.eval("-5*-2");
+        System.out.println(v4);
+        assert v4 == 10;
+
+
+        for (int i = 0; i < 10000000; i++) {
+            //no cache: 1m 51s
+            //cache: 8s
+            //fast cache: 2s
+            MathsInterpreter.eval("tttttttttttttttttttttttt", MathsContext.create().withFastCache().withGlobalVariable("t", "(1)(2)(3)(4)(5)(6)"));
+        }
     }
 
     @Test
