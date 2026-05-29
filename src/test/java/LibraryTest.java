@@ -24,6 +24,13 @@ public class LibraryTest {
     }
 
     @Test
+    public void testMaths() {
+        double v = MathsInterpreter.eval("10*500+2+4");
+        System.out.println(v);
+        assert v == 5006;
+    }
+
+    @Test
     public void test() {
         assert TestCode.test();
         Either<Integer, String> either = Either.right("Hello World");
@@ -70,8 +77,5 @@ public class LibraryTest {
 
         assert TestEnumRecord.C.create(2).equals(TestEnumRecord.C.create(2));
         assert !TestEnumRecord.B.equals(TestEnumRecord.C);
-
-        double v = MathsInterpreter.eval("1+500+2+4");
-        assert v == 507;
     }
 }

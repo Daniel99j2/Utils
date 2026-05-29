@@ -4,10 +4,13 @@ import com.daniel99j.djutil.ValueHolder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 
 public class MathsInterpreter {
+    private static final Map<Character, BiFunction<Double, Double, Double>> operations = Map.of('+', (a, b) -> a+b, '-', (a, b) -> a-b, '*', (a, b) -> a*b, '/', (a, b) -> a/b);
     public static double eval(String s) {
+        s = s.replace(" ", "");
         //create nodes
         //resolve nodes
 
@@ -18,23 +21,22 @@ public class MathsInterpreter {
         Equation currentlyEditing = nodes;
         //ValueHolder<Resolvable> currentlyChanging = nodes.one;
 
-        String reader = s;
         String currentNumber = "";
-        int startCurrent = 0;
         int current = 0;
-        while (!reader.isEmpty()) {
-            if(reader.length() == current) {
+        while (!s.isEmpty()) {
+            if(s.length() == current) {
                 currentlyEditing.one.object = new Value(Double.parseDouble(currentNumber));
                 break;
             }
-            if(reader.charAt(current) == '+') {
+            if(operations.containsKey(s.charAt(current))) {
                 currentlyEditing.one.object = new Value(Double.parseDouble(currentNumber));
+                currentlyEditing.function = operations.get(s.charAt(current));
                 currentNumber = "";
                 Equation newE = new Equation();
                 currentlyEditing.two.object = newE;
                 currentlyEditing = newE;
             } else {
-                currentNumber += reader.charAt(current);
+                currentNumber += s.charAt(current);
             }
             current++;
         }
@@ -87,7 +89,7 @@ public class MathsInterpreter {
         }
     }
 
-    protected static class Resolvable {
+    private static class Resolvable {
         protected double resolved = Double.NaN;
 
         public void resolve() {
@@ -99,7 +101,7 @@ public class MathsInterpreter {
         }
     }
 
-    protected static class Equation extends Resolvable {
+    private static class Equation extends Resolvable {
         protected ValueHolder<Resolvable> one = new ValueHolder<>();
         protected ValueHolder<Resolvable> two = new ValueHolder<>();
         protected BiFunction<Double, Double, Double> function;
