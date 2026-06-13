@@ -51,6 +51,17 @@ public class MiscUtils {
         return null;
     }
 
+    public static Class<?> getClassNonPrimitive(Class<?> objectOrPrimitive) {
+        if(objectOrPrimitive.equals(double.class)) return Double.class;
+        if(objectOrPrimitive.equals(float.class)) return Float.class;
+        if(objectOrPrimitive.equals(int.class)) return Integer.class;
+        if(objectOrPrimitive.equals(long.class)) return Long.class;
+        if(objectOrPrimitive.equals(short.class)) return Short.class;
+        if(objectOrPrimitive.equals(byte.class)) return Byte.class;
+        if(objectOrPrimitive.equals(char.class)) return Character.class;
+        return objectOrPrimitive;
+    }
+
     public static boolean classEquals(Class<?> objectOrPrimitive, Class<?> object) {
         if(objectOrPrimitive.equals(double.class) && object.equals(Double.class)) return true;
         if(objectOrPrimitive.equals(float.class) && object.equals(Float.class)) return true;
