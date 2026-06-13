@@ -9,7 +9,9 @@ import com.daniel99j.djutil.pathfinder.PathfinderOptions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class LibraryTest {
     public static void main(String[] args) {
@@ -19,6 +21,59 @@ public class LibraryTest {
         if(TestCode.test()) either = Either.right("Hello World");
         else either = Either.left(1);
         System.out.println(either);
+    }
+
+    @Test
+    public void testRandomFloats() {
+        List<Float> amounts = new ArrayList<>();
+        Map<Integer, Integer> occurrences = new HashMap<>();
+
+        float min = -5;
+        float max = 6;
+
+        for (int i = 0; i < 100000; i++) {
+            float out = NumberUtils.getRandomFloat(min, max);
+            amounts.add(out);
+            if(!(out >= min && out <= max)) {
+                System.out.println(out);
+                throw new RuntimeException();
+            }
+        }
+
+        amounts.sort(Float::compareTo);
+
+        for (Float amount : amounts) {
+            int m = (int) Math.floor(amount);
+            occurrences.put(m, occurrences.getOrDefault(m, 0) + 1);
+        }
+
+        occurrences.forEach((k, v) -> System.out.println(k + ": " + v));
+    }
+
+    @Test
+    public void testRandomInts() {
+        List<Integer> amounts = new ArrayList<>();
+        Map<Integer, Integer> occurrences = new HashMap<>();
+
+        int min = -5;
+        int max = 6;
+
+        for (int i = 0; i < 100000; i++) {
+            int out = NumberUtils.getRandomInt(min, max);
+            amounts.add(out);
+            if(!(out >= min && out <= max)) {
+                System.out.println(out);
+                throw new RuntimeException();
+            }
+        }
+
+        amounts.sort(Integer::compareTo);
+
+        for (Integer amount : amounts) {
+            occurrences.put(amount, occurrences.getOrDefault(amount, 0) + 1);
+        }
+
+        occurrences.forEach((k, v) -> System.out.println(k + ": " + v));
     }
 
     @Test

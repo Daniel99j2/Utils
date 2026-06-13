@@ -1,25 +1,16 @@
 package com.daniel99j.djutil;
 
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 @SuppressWarnings({"unused"})
 public class NumberUtils {
     public static int getRandomInt(int min, int max) {
-        Random random = new Random();
-        return random.nextInt((max - min) + 1) + min;
+        return ThreadLocalRandom.current().nextInt(min, max + 1);
     }
 
     public static float getRandomFloat(float min, float max) {
-        Random random = new Random();
-        return random.nextFloat((max - min) + 1) + min;
-    }
-
-    public static int getRandomInt(Random random, int min, int max) {
-        return random.nextInt((max - min) + 1) + min;
-    }
-
-    public static float getRandomFloat(Random random, float min, float max) {
-        return random.nextFloat((max - min) + 1) + min;
+        return ThreadLocalRandom.current().nextFloat(min, max);
     }
 
     public static float makeNotZero(float input) {
