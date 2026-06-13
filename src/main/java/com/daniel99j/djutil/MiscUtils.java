@@ -59,6 +59,7 @@ public class MiscUtils {
         if(objectOrPrimitive.equals(short.class)) return Short.class;
         if(objectOrPrimitive.equals(byte.class)) return Byte.class;
         if(objectOrPrimitive.equals(char.class)) return Character.class;
+        if(objectOrPrimitive.equals(boolean.class)) return Boolean.class;
         return objectOrPrimitive;
     }
 
@@ -70,6 +71,7 @@ public class MiscUtils {
         if(objectOrPrimitive.equals(short.class) && object.equals(Short.class)) return true;
         if(objectOrPrimitive.equals(byte.class) && object.equals(Byte.class)) return true;
         if(objectOrPrimitive.equals(char.class) && object.equals(Character.class)) return true;
+        if(objectOrPrimitive.equals(boolean.class) && object.equals(Boolean.class)) return true;
         return objectOrPrimitive.equals(object);
     }
 }
