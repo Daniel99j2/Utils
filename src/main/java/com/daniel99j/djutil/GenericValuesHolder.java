@@ -1,7 +1,8 @@
 package com.daniel99j.djutil;
 
-//for some reason the last value has errors :(
-public record GenericValuesHolder<A, B, C, D, USELESS>(A a, B b, C c, D d, USELESS useless) {
+import org.jetbrains.annotations.NotNull;
+
+public record GenericValuesHolder<A, B, C, D, E>(A a, B b, C c, D d, E e) {
     public GenericValuesHolder(A a) {
         this(a, null, null, null, null);
     }
@@ -13,5 +14,10 @@ public record GenericValuesHolder<A, B, C, D, USELESS>(A a, B b, C c, D d, USELE
     }
     public GenericValuesHolder(A a, B b, C c, D d) {
         this(a, b, c, d, null);
+    }
+
+    @Override
+    public @NotNull String toString() {
+        return "GenericValuesHolder(" + a + ", " + b + ", " + c + ", " + d + ", " + e + ")";
     }
 }
