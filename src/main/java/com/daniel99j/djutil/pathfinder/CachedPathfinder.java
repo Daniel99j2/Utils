@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CachedPathfinder {
-    private final PathfinderOptions options;
+    private PathfinderOptions options;
     private final ArrayList<PathfindPos> cache = new ArrayList<>();
     private PathfindPos oldStart, oldEnd;
     private float maxDistance;
@@ -53,5 +53,20 @@ public class CachedPathfinder {
 
     public void setMaxDistance(float maxDistance) {
         this.maxDistance = maxDistance;
+    }
+
+    public PathfinderOptions getOptions() {
+        return options;
+    }
+
+    public void setOptions(PathfinderOptions options) {
+        this.options = options;
+        invalidate();
+    }
+
+    public void invalidate() {
+        this.cache.clear();
+        this.oldStart = null;
+        this.oldEnd = null;
     }
 }
