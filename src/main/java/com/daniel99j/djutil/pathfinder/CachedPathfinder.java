@@ -7,7 +7,7 @@ public class CachedPathfinder {
     private final PathfinderOptions options;
     private final ArrayList<PathfindPos> cache = new ArrayList<>();
     private PathfindPos oldStart, oldEnd;
-    private final float maxDistance;
+    private float maxDistance;
     private boolean wasLastInvalid = true;
 
     public CachedPathfinder(PathfinderOptions options, float maxDistance) {
@@ -45,5 +45,13 @@ public class CachedPathfinder {
 
     public boolean wasLastInvalid() {
         return wasLastInvalid;
+    }
+
+    public float getMaxDistance() {
+        return maxDistance;
+    }
+
+    public void setMaxDistance(float maxDistance) {
+        this.maxDistance = maxDistance;
     }
 }
